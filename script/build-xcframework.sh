@@ -49,10 +49,8 @@ LIBSSH_TAG=$1
 LIBSSL_TAG=$2
 DATE=$3
 
-set +e
-xcodebuild -showsdks | grep -sq visionOS
-VISION_OS=$?
-set -e
+# Sigmux fork: iOS device/simulator + macOS only.
+VISION_OS=1
 
 if [[ $VISION_OS == 0 ]]; then
     echo Vision OS available
@@ -95,12 +93,9 @@ fi
 #export ARCHS=$5
 #export MIN_VERSION=$6
 
-buildLibrary "$BUILD/iphoneos" "iphoneos" "iPhoneOS" "" "arm64" "9.0"
-buildLibrary "$BUILD/iphonesimulator" "iphonesimulator" "iPhoneSimulator" "" "x86_64 arm64" "9.0"
-buildLibrary "$BUILD/macosx" "macosx" "MacOSX" "" "x86_64 arm64" "10.10"
-buildLibrary "$BUILD/maccatalyst" "macosx" "MacOSX" "-maccatalyst" "x86_64 arm64" "10.15"
-buildLibrary "$BUILD/appletvsimulator" "appletvsimulator" "AppleTVSimulator" "" "x86_64 arm64" "9.0"
-buildLibrary "$BUILD/appletvos" "appletvos" "AppleTVOS" "" "arm64" "9.0"
+buildLibrary "$BUILD/iphoneos" "iphoneos" "iPhoneOS" "" "arm64" "13.0"
+buildLibrary "$BUILD/iphonesimulator" "iphonesimulator" "iPhoneSimulator" "" "x86_64 arm64" "13.0"
+buildLibrary "$BUILD/macosx" "macosx" "MacOSX" "" "x86_64 arm64" "10.15"
 
 xcodebuild -create-xcframework \
  -library "$BUILD/macosx/lib/libssh2.a" \
@@ -117,7 +112,7 @@ VERSION_STRING="Archive date:$DATE"
 VERSION_STRING+=$'\n'
 VERSION_STRING+="$XCODE_STRING"
 echo $VERSION_STRING
-xczip $BUILD/CSSH.xcframework --iso-date "$DATE" -o $BUILD/$ZIPNAME -c "$VERSION_STRING"
+ditto -c -k --keepParent $BUILD/CSSH.xcframework $BUILD/$ZIPNAME
 rm -rf $BUILD/CSSH.xcframework
 CHECKSUM=$(shasum -a 256 -b $BUILD/$ZIPNAME | awk '{print $1}')
 
@@ -150,9 +145,6 @@ $XCODE_STRING
 | macOS             | x86_64 arm64       |
 | iOS               | arm64              |
 | iOS Simulator     | x86_64 arm64       |
-| tvOS              | arm64              |
-| tvOS Simulator    | x86_64 arm64       |
-| Maccatalyst       | x86_64 arm64       |
 EOL
 
 if [[ $VISION_OS == 0 ]]; then
