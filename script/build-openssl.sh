@@ -25,7 +25,7 @@ do
     if [[ "$SDK_PLATFORM" == "macosx" ]]; then
       CONF="no-shared"
     else
-      CONF="no-asm no-hw no-shared no-async"
+      CONF="no-asm no-shared no-async"
     fi
     
     if [[ "$EFFECTIVE_PLATFORM_NAME" == "-maccatalyst" ]]; then
