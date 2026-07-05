@@ -102,31 +102,6 @@ buildLibrary "$BUILD/maccatalyst" "macosx" "MacOSX" "-maccatalyst" "x86_64 arm64
 buildLibrary "$BUILD/appletvsimulator" "appletvsimulator" "AppleTVSimulator" "" "x86_64 arm64" "9.0"
 buildLibrary "$BUILD/appletvos" "appletvos" "AppleTVOS" "" "arm64" "9.0"
 
-if [[ $VISION_OS == 0 ]]; then
-buildLibrary "$BUILD/xros" "xros" "XROS" "" "arm64" ""
-buildLibrary "$BUILD/xrsimulator" "xrsimulator" "XRSimulator" "" "arm64" ""
-
-xcodebuild -create-xcframework \
-  -library "$BUILD/macosx/lib/libssh2.a" \
-  -headers "$BUILD/macosx/include" \
-  -library "$BUILD/iphoneos/lib/libssh2.a" \
-  -headers "$BUILD/iphoneos/include" \
-  -library "$BUILD/iphonesimulator/lib/libssh2.a" \
-  -headers "$BUILD/iphonesimulator/include" \
-  -library "$BUILD/maccatalyst/lib/libssh2.a" \
-  -headers "$BUILD/maccatalyst/include" \
-  -library "$BUILD/appletvsimulator/lib/libssh2.a" \
-  -headers "$BUILD/appletvsimulator/include" \
-  -library "$BUILD/appletvos/lib/libssh2.a" \
-  -headers "$BUILD/appletvos/include" \
-  -library "$BUILD/xros/lib/libssh2.a" \
-  -headers "$BUILD/xros/include" \
-  -library "$BUILD/xrsimulator/lib/libssh2.a" \
-  -headers "$BUILD/xrsimulator/include" \
-  -output $BUILD/CSSH.xcframework
-
-else
-
 xcodebuild -create-xcframework \
  -library "$BUILD/macosx/lib/libssh2.a" \
  -headers "$BUILD/macosx/include" \
@@ -134,15 +109,7 @@ xcodebuild -create-xcframework \
  -headers "$BUILD/iphoneos/include" \
  -library "$BUILD/iphonesimulator/lib/libssh2.a" \
  -headers "$BUILD/iphonesimulator/include" \
- -library "$BUILD/maccatalyst/lib/libssh2.a" \
- -headers "$BUILD/maccatalyst/include" \
- -library "$BUILD/appletvsimulator/lib/libssh2.a" \
- -headers "$BUILD/appletvsimulator/include" \
- -library "$BUILD/appletvos/lib/libssh2.a" \
- -headers "$BUILD/appletvos/include" \
  -output $BUILD/CSSH.xcframework
- 
-fi
 
 XCODE_STRING=$(xcodebuild -version 2>&1| tail -n 2)
 XCODE_STRING=${XCODE_STRING//[$'\t\r\n']/ }
