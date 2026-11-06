@@ -48,6 +48,9 @@ export BUILD_THREADS
 LIBSSH_TAG=$1
 LIBSSL_TAG=$2
 DATE=$3
+# Optional: build libssh2 from this upstream commit instead of the release
+# tarball named by LIBSSH_TAG (security fixes not yet in a release).
+LIBSSH_COMMIT=$LIBSSH_COMMIT
 
 # Sigmux fork: iOS device/simulator + macOS only.
 VISION_OS=1
@@ -79,7 +82,14 @@ export LIBSSH_SOURCE="$BUILD/libssh2/src/"
 if [[ -d "$OPENSSL_SOURCE" ]] && [[ -d "$LIBSSH_SOURCE" ]]; then
   echo "Sources already downloaded"
 else
-  fetchSource "https://github.com/libssh2/libssh2/releases/download/libssh2-$LIBSSH_TAG/libssh2-$LIBSSH_TAG.tar.gz" "libssh2.tar.gz" "$LIBSSH_SOURCE"
+  if [[ -n "$LIBSSH_COMMIT" ]]; then
+    # Unreleased upstream snapshot: GitHub's archive of the commit carries
+    # no generated configure, so autoreconf it once here.
+    fetchSource "https://github.com/libssh2/libssh2/archive/$LIBSSH_COMMIT.tar.gz" "libssh2.tar.gz" "$LIBSSH_SOURCE"
+    (cd "$LIBSSH_SOURCE" && autoreconf -fi)
+  else
+    fetchSource "https://github.com/libssh2/libssh2/releases/download/libssh2-$LIBSSH_TAG/libssh2-$LIBSSH_TAG.tar.gz" "libssh2.tar.gz" "$LIBSSH_SOURCE"
+  fi
   fetchSource "https://github.com/openssl/openssl/archive/$LIBSSL_TAG.tar.gz" "openssl.tar.gz" "$OPENSSL_SOURCE"
 fi
 
@@ -135,7 +145,7 @@ let package = Package(
 EOL
 
 cat >$BUILD/release-note.md << EOL
-Libssh2 $LIBSSH_TAG
+Libssh2 $LIBSSH_TAG${LIBSSH_COMMIT:+ (libssh2/libssh2@$LIBSSH_COMMIT)}
 $LIBSSL_TAG
 $XCODE_STRING
 

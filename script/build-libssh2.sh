@@ -46,7 +46,11 @@ do
     export CC="$CLANG"
     export CPP="$CLANG -E"
 
-    export CFLAGS="-arch $ARCH -pipe -no-cpp-precomp -isysroot $SDKROOT"
+    # libssh2 after 1.11.1 turns these off by default; keep what 1.11.1
+    # negotiated so older servers and legacy (PEM, DSA) keys still work.
+    # The rest it drops (3DES, Blowfish, RC4, CAST, RIPEMD, MD5 MACs) stay off.
+    COMPAT_FLAGS="-DLIBSSH2_RSA_SHA1_ENABLE -DLIBSSH2_KEX_SHA1_ENABLE -DLIBSSH2_HMAC_SHA1_ENABLE -DLIBSSH2_MD5_PEM_ENABLE -DLIBSSH2_DSA_ENABLE"
+    export CFLAGS="-arch $ARCH -pipe -no-cpp-precomp -isysroot $SDKROOT $COMPAT_FLAGS"
     export CPPFLAGS="-arch $ARCH -pipe -no-cpp-precomp -isysroot $SDKROOT"
 
     if [[ "$SDK_PLATFORM" != "xros" ]] && [[ "$SDK_PLATFORM" != "xrsimulator" ]]; then
